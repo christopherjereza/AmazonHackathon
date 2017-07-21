@@ -1,6 +1,6 @@
-#Amazon Hackathon Project 2017
+Amazon Hackathon Project 2017
 
-#Team Unity
+Team Unity
 
 Christopher Jereza (cjjereza@)
 Emily Lo (loemily@)
