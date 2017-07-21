@@ -1,5 +1,5 @@
 const conversation = require('alexa-conversation');
-const app = require('/Users/cjjereza/Desktop/AmazonHackathon/index.js');
+const app = require('/Users/cjjereza/AmazonHackathon/index.js');
 
 const args = {
     name: 'Test Conversation',
