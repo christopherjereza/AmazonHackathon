@@ -36,7 +36,6 @@ function getMacros(quantity, unit, ingredient){
         }
         else {
           let nutrients = result.report.food.nutrients;
-          console.log(nutrients[0].measures);
           let inGrams, calories, fat, carbs, protein;
           if (isConversionPresent(unit, nutrients[0].measures)){
             let index = isConversionPresent(unit, nutrients[0].measures);
@@ -46,7 +45,7 @@ function getMacros(quantity, unit, ingredient){
             protein = quantity * getActualValue(nutrients, 'Protein', index);
           }
           else{
-            let inGrams = CONVERSIONS.getGrams(quantity, unit);
+            inGrams = CONVERSIONS.getGrams(quantity, unit);
             calories = getRoughValue(nutrients, 'Energy', inGrams);
             fat = getRoughValue(nutrients, 'Total lipid (fat)', inGrams);
             carbs= getRoughValue(nutrients, 'Carbohydrate, by difference', inGrams);
@@ -70,7 +69,8 @@ function getMacros(quantity, unit, ingredient){
 
 function isConversionPresent(unitQuery, inputOptions){
   for (let i = 0; i < inputOptions.length; i++){
-    if (inputOptions[i].label === inputOptions){
+    if (inputOptions[i].label === unitQuery ||
+        inputOptions[i].label === unitQuery + 's') {
       return i;
     }
   }
@@ -89,7 +89,7 @@ function macroObject(cal, fat, carb, protein){
 function getActualValue(input, category, index){
   for (let i = 0; i < input.length; i++){
     if (input[i].name === category){
-      return (input[i].name.measures[index].value).toFixed(2);
+      return (input[i].measures[index].value * input[i].measures[index].qty);
     }
   }
   return 0;
