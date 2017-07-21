@@ -92,6 +92,9 @@ var handlers = {
     'Unhandled': function() {
         this.emit(':ask', 'I\'m sorry, I didn\'t get that. Please specify a quantity, ' +
                           'a unit of measurement, and a food item. Or, say REPORT');
+    },
+    'AMAZON.StopIntent': function() {
+        this.emit(':tell', '')
     }
 };
 
