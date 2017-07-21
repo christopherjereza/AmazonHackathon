@@ -7,6 +7,9 @@ const MESSAGES = {
 };
 
 function add(quantity, unit, ingredient) {
+    if (this.attributes.meal === undefined) {
+        this.attributes.meal = {};
+    }
     this.attributes.meal[ingredient] = [quantity, unit];
     this.attributes.lastItemAdded = ingredient;
     this.emit(':ask', 'Adding ' + stringify.call(this, quantity, unit, ingredient));
@@ -14,13 +17,16 @@ function add(quantity, unit, ingredient) {
 
 /* Return a string with the quantity, unit, and ingredient of the added item. */
 function stringify(quantity, unit, ingredient) {
-    return quantity + WHITESPACE + unit + WHITESPACE + ' of ' + ingredient;
+    return quantity + WHITESPACE + unit + ' of ' + ingredient;
 }
 
 /* List every ingredient added so far. */
 function report() {
     const meal = this.attributes.meal;
-    let outputSpeech = '';
+    if (meal.length <= 0) {
+        return 'No food items have been added.';
+    }
+    let outputSpeech = 'You have added ';
     let ingredients = [];
     for (let ingredient in meal) {
         if (meal.hasOwnProperty(ingredient) && meal[ingredient] !== undefined) {
@@ -49,9 +55,9 @@ function report() {
         ingredient = ingredients[len - 1];
         quantity = meal[ingredient][0];
         unit = meal[ingredient][1];
-        outputSpeech += stringify.call(this, quantity, unit, ingredient);
+        outputSpeech += stringify.call(this, quantity, unit, ingredient) + '.';
     }
-    return outputSpeech
+    this.emit(':ask', outputSpeech);
 }
 
 function remove() {
@@ -82,6 +88,10 @@ var handlers = {
     },
     'RemoveIntent': function() {
         remove.call(this);
+    },
+    'Unhandled': function() {
+        this.emit(':ask', 'I\'m sorry, I didn\'t get that. Please specify a quantity, ' +
+                          'a unit of measurement, and a food item. Or, say REPORT');
     }
 };
 
