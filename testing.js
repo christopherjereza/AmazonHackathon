@@ -1,5 +1,5 @@
 const conversation = require('alexa-conversation');
-const app = require('/Users/cjjereza/Desktop/AmazonHackathon/index.js');
+const app = require('/Users/cjjereza/AmazonHackathon/index.js');
 
 const args = {
     name: 'Test Conversation',
@@ -8,21 +8,21 @@ const args = {
     handler: app.handler
 };
 
-args.name = '1. Trivial Launch Test';
+// args.name = '1. Trivial Launch Test';
+// conversation(args)
+//     .userSays('LaunchRequest')
+//     .plainResponse
+//     .shouldEqual(' Welcome to Food Buddy! Add an ingredient or food item to your meal. ')
+// .end();
+
+args.name = '2. Launch/Add Test';
 conversation(args)
-    .userSays('LaunchRequest')
+    .userSays('LaunchReqest')
+    .userSays('AddIntent', {ingredient: 'carrots', quantity: '4', unit: 'cups'})
     .plainResponse
-    .shouldEqual(' Welcome to Food Buddy! Add an ingredient or food item to your meal. ')
+    .shouldEqual(' Adding 4 cups of carrots ')
 .end();
 
-// args.name = '2. Launch/Add Test';
-// conversation(args)
-//     .userSays('LaunchReqest')
-//     .userSays('AddIntent', {ingredient: 'carrots', quantity: '4', unit: 'cups'})
-//     .plainResponse
-//     .shouldEqual(' Adding 4 cups of carrots ')
-// .end();
-//
 // args.name = '3. Launch/Add/Add/Report Test';
 // conversation(args)
 //     .userSays('LaunchReqest')

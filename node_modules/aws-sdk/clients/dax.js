@@ -1,7 +1,7 @@
 require('../lib/node_loader');
 var AWS = require('../lib/core');
-var Service = AWS.Service;
-var apiLoader = AWS.apiLoader;
+var Service = require('../lib/service');
+var apiLoader = require('../lib/api_loader');
 
 apiLoader.services['dax'] = {};
 AWS.DAX = Service.defineService('dax', ['2017-04-19']);

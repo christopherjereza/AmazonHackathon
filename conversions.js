@@ -28,6 +28,8 @@ function getGrams(quantity, unit) {
         return quantity * 946.35295;
     } else if (unit === 'gallons' || unit === 'gallon') {
         return quantity * 3785.4118;
+    } else {
+        return quantity;
     }
 }
 

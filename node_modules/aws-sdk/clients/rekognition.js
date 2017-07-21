@@ -1,7 +1,7 @@
 require('../lib/node_loader');
 var AWS = require('../lib/core');
-var Service = AWS.Service;
-var apiLoader = AWS.apiLoader;
+var Service = require('../lib/service');
+var apiLoader = require('../lib/api_loader');
 
 apiLoader.services['rekognition'] = {};
 AWS.Rekognition = Service.defineService('rekognition', ['2016-06-27']);

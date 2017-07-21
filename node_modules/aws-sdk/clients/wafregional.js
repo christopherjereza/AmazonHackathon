@@ -1,7 +1,7 @@
 require('../lib/node_loader');
 var AWS = require('../lib/core');
-var Service = AWS.Service;
-var apiLoader = AWS.apiLoader;
+var Service = require('../lib/service');
+var apiLoader = require('../lib/api_loader');
 
 apiLoader.services['wafregional'] = {};
 AWS.WAFRegional = Service.defineService('wafregional', ['2016-11-28']);

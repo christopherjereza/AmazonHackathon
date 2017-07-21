@@ -8,9 +8,7 @@ AWS.util.update(AWS.APIGateway.prototype, {
  */
   setAcceptHeader: function setAcceptHeader(req) {
     var httpRequest = req.httpRequest;
-    if (!httpRequest.headers.Accept) {
-      httpRequest.headers['Accept'] = 'application/json';
-    }
+    httpRequest.headers['Accept'] = 'application/json';
   },
 
   /**

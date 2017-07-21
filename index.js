@@ -5,16 +5,21 @@ const WHITESPACE = ' ';
 const STATES = {
     'HELP': '_HELPSTATE',
     'MAIN': '_MAINSTATE',
-    'WHATIF': '_WHATIFSTATE'
 }
 
 const MESSAGES = {
     'WELCOME': 'Welcome to Food Buddy! Add an ingredient or food item to your meal.',
     'STOP': 'Goodbye!',
-    'HELP': '',
+    'HELP': 'You can add ingredients to your meal by saying, ADD and the amount of your ingredient. ' +
+    'Say “what if I add..” followed by your quantity and ingredient to hear how much nutrients and calories you ' +
+    'will be adding. Say “Cancel” or “remove” with an ingredient to remove it from your meal and say “summary” ' +
+    'at any point to hear the total nutritional information. ' +
+    'Would you like to hear an example?',
     'UNHANDLED': 'I\'m sorry, I didn\'t get that. Please specify a quantity, ' +
-                 'a unit of measurement, and an ingredient. Or, say REPORT.',
-    'START_UNHANDLED': 'Say, \'Open Food Buddy\', to track the nutritional value of your meal.'
+    'a unit of measurement, and an ingredient. Or, say REPORT.',
+    'START_UNHANDLED': 'Say, \'Open Food Buddy\', to track the nutritional value of your meal.',
+    'HELP_UNHANDLED': 'Sorry, I didn\'t get that. Would you like to hear an example? Please say yes or no.'
+
 };
 
 const DATA = require('./data.js');
@@ -27,6 +32,7 @@ function add(quantity, unit, ingredient) {
         this.attributes.ingredients = {};
     }
     const macros = DATA.getMacros(quantity, unit, ingredient);
+    console.log(macros);
     this.attributes.meal[ingredient] = macros;
     this.attributes.ingredients[ingredient] = [quantity][unit];
     this.attributes.lastItemAdded = ingredient;
@@ -108,6 +114,21 @@ function ingredients() {
     this.emit(':ask', outputSpeech);
 }
 
+function whatIf(quantity, unit, ingredient) {
+    if (this.attributes.meal === undefined) {
+        this.attributes.meal = {};
+    }
+    if (this.attributes.ingredients === undefined) {
+        this.attributes.ingredients = {};
+    }
+    const macros = DATA.getMacros(quantity, unit, ingredient);
+
+    this.emit(':ask', 'Adding ' + quantity + WHITESPACE + unit + ' of ' + ingredient + ' would add ' + macros.Calories +
+        ' calories, ' + macros.Carbs + ' grams of carbohydrates, ' + macros.Protein + ' grams of protein, and ' +
+        macros.Fat + ' grams of fat to your meal. Would you like to add this?');
+
+}
+
 var handlers = {
     'LaunchRequest': function () {
         this.handler.state = STATES.MAIN;
@@ -153,7 +174,10 @@ const mainStateHandler = Alexa.CreateStateHandler(STATES.MAIN, {
         add.call(this, quantity, unit, ingredient);
     },
     'WhatIfIntent': function() {
-        this.emit(':ask', 'What If Intent triggered');
+        const quantity = this.event.request.intent.slots.quantity.value;
+        const unit = this.event.request.intent.slots.unit.value;
+        const ingredient = this.event.request.intent.slots.ingredient.value;
+        whatIf.call(this, quantity, unit, ingredient);
     },
     'ReportIntent': function() {
         report.call(this);
@@ -176,8 +200,30 @@ const mainStateHandler = Alexa.CreateStateHandler(STATES.MAIN, {
     }
 });
 
+const helpStateHandler = Alexa.CreateStateHandler(STATES.HELP, {
+    'AMAZON.YesIntent': function() {
+        this.handler.state = STATES.MAIN;
+        this.emit(':ask', 'For example, you could say: Add three ounces of chicken, or you could ask: How many calories ' +
+            'would five grams of cheese add?');
+    },
+    'AMAZON.NoIntent': function() {
+        this.handler.state = STATES.MAIN;
+        this.emit(':ask', MESSAGES.WELCOME);
+    },
+    'AMAZON.StopIntent': function() {
+        this.emit(':tell', MESSAGES.STOP);
+    },
+    'AMAZON.HelpIntent': function() {
+        this.handler.state = STATES.HELP;
+        this.emit(':tell', MESSAGES.HELP);
+    },
+    'Unhandled': function() {
+        this.emit(':ask', MESSSAGES.HELP_UNHANDLED);
+    }
+});
+
 exports.handler = function(event, context, callback){
     var alexa = Alexa.handler(event, context, callback);
-    alexa.registerHandlers(handlers, mainStateHandler, whatIfStateHandler, helpStateHandler);
+    alexa.registerHandlers(handlers, mainStateHandler, helpStateHandler);
     alexa.execute();
 };

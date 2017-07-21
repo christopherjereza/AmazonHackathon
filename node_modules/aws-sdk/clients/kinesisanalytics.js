@@ -1,7 +1,7 @@
 require('../lib/node_loader');
 var AWS = require('../lib/core');
-var Service = AWS.Service;
-var apiLoader = AWS.apiLoader;
+var Service = require('../lib/service');
+var apiLoader = require('../lib/api_loader');
 
 apiLoader.services['kinesisanalytics'] = {};
 AWS.KinesisAnalytics = Service.defineService('kinesisanalytics', ['2015-08-14']);

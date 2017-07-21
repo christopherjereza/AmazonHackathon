@@ -1,5 +1,5 @@
 var AWS = require('../core');
-var rest = AWS.Protocol.Rest;
+var rest = require('../protocol/rest');
 
 /**
  * A presigner object can be used to generate presigned urls for the Polly service.
