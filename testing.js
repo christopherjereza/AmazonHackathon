@@ -15,31 +15,31 @@ conversation(args)
     .shouldEqual(' Welcome to Food Buddy! Add an ingredient or food item to your meal. ')
 .end();
 
-args.name = '2. Launch/Add Test';
-conversation(args)
-    .userSays('LaunchReqest')
-    .userSays('AddIntent', {ingredient: 'carrots', quantity: '4', unit: 'cups'})
-    .plainResponse
-    .shouldEqual(' Adding 4 cups of carrots ')
-.end();
-
-args.name = '3. Launch/Add/Add/Report Test';
-conversation(args)
-    .userSays('LaunchReqest')
-    .userSays('AddIntent', {ingredient: 'carrots', quantity: '4', unit: 'cups'})
-    .userSays('AddIntent', {ingredient: 'potatoes', quantity: '8', unit: 'ounces'})
-    .userSays('ReportIntent')
-    .plainResponse
-    .shouldEqual(' You have added 4 cups of carrots and 8 ounces of potatoes. ')
-.end();
-
-args.name = '3. Launch/Add/Add/Remove/Report Test';
-conversation(args)
-    .userSays('LaunchReqest')
-    .userSays('AddIntent', {ingredient: 'carrots', quantity: '4', unit: 'cups'})
-    .userSays('AddIntent', {ingredient: 'potatoes', quantity: '8', unit: 'ounces'})
-    .userSays('RemoveIntent')
-    .userSays('ReportIntent')
-    .plainResponse
-    .shouldEqual(' You have added 4 cups of carrots. ')
-.end();
+// args.name = '2. Launch/Add Test';
+// conversation(args)
+//     .userSays('LaunchReqest')
+//     .userSays('AddIntent', {ingredient: 'carrots', quantity: '4', unit: 'cups'})
+//     .plainResponse
+//     .shouldEqual(' Adding 4 cups of carrots ')
+// .end();
+//
+// args.name = '3. Launch/Add/Add/Report Test';
+// conversation(args)
+//     .userSays('LaunchReqest')
+//     .userSays('AddIntent', {ingredient: 'carrots', quantity: '4', unit: 'cups'})
+//     .userSays('AddIntent', {ingredient: 'potatoes', quantity: '8', unit: 'ounces'})
+//     .userSays('ReportIntent')
+//     .plainResponse
+//     .shouldEqual(' You have added 4 cups of carrots and 8 ounces of potatoes. ')
+// .end();
+//
+// args.name = '3. Launch/Add/Add/Remove/Report Test';
+// conversation(args)
+//     .userSays('LaunchReqest')
+//     .userSays('AddIntent', {ingredient: 'carrots', quantity: '4', unit: 'cups'})
+//     .userSays('AddIntent', {ingredient: 'potatoes', quantity: '8', unit: 'ounces'})
+//     .userSays('RemoveIntent')
+//     .userSays('ReportIntent')
+//     .plainResponse
+//     .shouldEqual(' You have added 4 cups of carrots. ')
+// .end();

@@ -176,20 +176,8 @@ const mainStateHandler = Alexa.CreateStateHandler(STATES.MAIN, {
     }
 });
 
-const whatIfStateHandler = Alexa.CreateStateHandler(STATES.WHATIF, {
-
-});
-
-const helpStateHandler = Alexa.CreateStateHandler(STATES.HELP, {
-
-});
-
-
-
-
-
 exports.handler = function(event, context, callback){
     var alexa = Alexa.handler(event, context, callback);
-    alexa.registerHandlers(handlers);
+    alexa.registerHandlers(handlers, mainStateHandler, whatIfStateHandler, helpStateHandler);
     alexa.execute();
 };
