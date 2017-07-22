@@ -9,7 +9,6 @@ const STATES = {
     'MAIN': '_MAINSTATE',
 };
 
-
 const APP_ID = 'amzn1.ask.skill.f7574c4a-fe13-47d7-b1a5-34a199aacf04';
 
 const MESSAGES = {
@@ -217,6 +216,12 @@ const mainStateHandler = Alexa.CreateStateHandler(STATES.MAIN, {
     'AMAZON.HelpIntent': function() {
         this.handler.state = STATES.HELP;
         this.emit(':tell', MESSAGES.HELP);
+    }
+    'StartOverIntent': function() {
+        this.attributes.meal = {};
+        this.attributes.ingredients = {};
+        this.attributes.addedItems = [];
+        this.emitWithState('LaunchRequest');
     }
 });
 
