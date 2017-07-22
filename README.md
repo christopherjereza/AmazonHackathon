@@ -50,9 +50,13 @@ or
 
 ### List current ingredients
 To hear a list of all items added to your meal so far, followed by the Calorie count for each, you can ask Food Buddy,
-```What ingredients have I added?```
+```
+"What ingredients have I added?"
+```
 or
-```Tell me what's in my recipe.```
+```
+"Tell me what's in my recipe."
+```
 
 ### Nutritional Summary
 Food Buddy can give you a summary of the Calorie and macronutrient (protein, carbohydrate, fat) breakdown of your
@@ -63,6 +67,7 @@ meal! Just ask,
 or
 ```
 "Give me the final report."
+```
 ### Exit
 Just say
 ```
