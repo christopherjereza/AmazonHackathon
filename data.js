@@ -5,6 +5,7 @@
 
 const NutrientDataLaboratory = require('nutrient-data-laboratory');
 const CONVERSIONS = require('./conversions.js');
+const INDEX = require('./index.js');
 
 let ndl = new NutrientDataLaboratory('Zo7ru5UezyJCdMFmNSwqBnZiQUKysRvoRx9skNOc');
 
@@ -12,21 +13,18 @@ getMacros(2, 'cups', 'cheese');
 
 // Main entry function, returns object with fields of macro nutrition data
 function getMacros(quantity, unit, ingredient){
-  // Search for USDA's ID code, ndbno, of given ingredient
+  const thisCurrent = this;
   ndl.search({
     q: ingredient,
     max: 25,
     ds: 'Standard Reference',
     offset: 0
-    }, (err, res) => {
+    }, function(err, res) {
     if (err) {
       console.error(err);
     }
     else {
-      // Retrieve most relevant item's ndbno
       let ndbnoQuery = res.list.item[0].ndbno;
-      console.log(ingredient + ' ndbno is: ' + ndbnoQuery);
-      // Call food reports to get nutritional value from ndb API
       ndl.foodReports({
         ndbno: ndbnoQuery,
         type: 'b'
@@ -37,30 +35,21 @@ function getMacros(quantity, unit, ingredient){
         else {
           let nutrients = result.report.food.nutrients;
           let inGrams, calories, fat, carbs, protein;
-          if (isConversionPresent(unit, nutrients[0].measures)){
-            let index = isConversionPresent(unit, nutrients[0].measures);
-            calories = quantity * getActualValue(nutrients, 'Energy', index);
-            fat = quantity * getActualValue(nutrients, 'Total lipid (fat)', index);
-            carbs = quantity * getActualValue(nutrients, 'Carbohydrate, by difference', index);
-            protein = quantity * getActualValue(nutrients, 'Protein', index);
+          if (isConversionPresent.call(thisCurrent, unit, nutrients[0].measures)){
+            let index = isConversionPresent.call(thisCurrent, unit, nutrients[0].measures);
+            calories = quantity * getActualValue.call(thisCurrent, nutrients, 'Energy', index);
+            fat = quantity * getActualValue.call(thisCurrent, nutrients, 'Total lipid (fat)', index);
+            carbs = quantity * getActualValue.call(thisCurrent, nutrients, 'Carbohydrate, by difference', index);
+            protein = quantity * getActualValue.call(thisCurrent, nutrients, 'Protein', index);
           }
           else{
-            inGrams = CONVERSIONS.getGrams(quantity, unit);
-            calories = getRoughValue(nutrients, 'Energy', inGrams);
-            fat = getRoughValue(nutrients, 'Total lipid (fat)', inGrams);
-            carbs= getRoughValue(nutrients, 'Carbohydrate, by difference', inGrams);
-            protein = getRoughValue(nutrients, 'Protein', inGrams);
+            inGrams = CONVERSIONS.getGrams.call(thisCurrent, quantity, unit);
+            calories = getRoughValue.call(thisCurrent, nutrients, 'Energy', inGrams);
+            fat = getRoughValue.call(thisCurrent, nutrients, 'Total lipid (fat)', inGrams);
+            carbs= getRoughValue.call(thisCurrent, nutrients, 'Carbohydrate, by difference', inGrams);
+            protein = getRoughValue.call(thisCurrent, nutrients, 'Protein', inGrams);
           }
-
-          console.log(calories);
-          console.log(fat);
-          console.log(carbs);
-          console.log(protein);
-          //console.log(numGrams);
-          let test = macroObject(calories, fat, carbs, protein);
-          console.log(test);
-          console.log(test.Protein);
-          return macroObject(calories, fat, carbs, protein);
+          INDEX.update.call(thisCurrent, macroObject(calories, fat, carbs, protein));
         }
       });
     }

@@ -1,3 +1,5 @@
+'use strict';
+
 var Alexa = require('alexa-sdk');
 
 const WHITESPACE = ' ';
@@ -5,7 +7,10 @@ const WHITESPACE = ' ';
 const STATES = {
     'HELP': '_HELPSTATE',
     'MAIN': '_MAINSTATE',
-}
+};
+
+
+const APP_ID = 'amzn1.ask.skill.f7574c4a-fe13-47d7-b1a5-34a199aacf04';
 
 const MESSAGES = {
     'WELCOME': 'Welcome to Food Buddy! Add an ingredient or food item to your meal.',
@@ -31,8 +36,10 @@ function add(quantity, unit, ingredient) {
     if (this.attributes.ingredients === undefined) {
         this.attributes.ingredients = {};
     }
-    const macros = DATA.getMacros(quantity, unit, ingredient);
-    console.log(macros);
+    DATA.getMacros.call(this, quantity, unit, ingredient);
+}
+
+function update(macros) {
     this.attributes.meal[ingredient] = macros;
     this.attributes.ingredients[ingredient] = [quantity][unit];
     this.attributes.lastItemAdded = ingredient;
@@ -164,7 +171,6 @@ var handlers = {
 
 const mainStateHandler = Alexa.CreateStateHandler(STATES.MAIN, {
     'LaunchRequest': function () {
-        this.attributes.meal = {};
         this.emit(':ask', MESSAGES.WELCOME);
     },
     'AddIntent': function () {
@@ -222,8 +228,10 @@ const helpStateHandler = Alexa.CreateStateHandler(STATES.HELP, {
     }
 });
 
-exports.handler = function(event, context, callback){
-    var alexa = Alexa.handler(event, context, callback);
+exports.update = update;
+exports.handler = function(event, context){
+    const alexa = Alexa.handler(event, context);
+    alexa.appId = APP_ID;
     alexa.registerHandlers(handlers, mainStateHandler, helpStateHandler);
     alexa.execute();
 };

@@ -14,18 +14,18 @@ const args = {
 //     .plainResponse
 //     .shouldEqual(' Welcome to Food Buddy! Add an ingredient or food item to your meal. ')
 // .end();
-
-args.name = '2. Launch/Add Test';
-conversation(args)
-    .userSays('LaunchReqest')
-    .userSays('AddIntent', {ingredient: 'carrots', quantity: '4', unit: 'cups'})
-    .plainResponse
-    .shouldEqual(' Adding 4 cups of carrots ')
-.end();
+//
+// args.name = '2. Launch/Add Test';
+// conversation(args)
+//     .userSays('LaunchRequest')
+//     .userSays('AddIntent', {ingredient: 'carrots', quantity: '4', unit: 'cups'})
+//     .plainResponse
+//     .shouldEqual(' Adding 4 cups of carrots ')
+// .end();
 
 // args.name = '3. Launch/Add/Add/Report Test';
 // conversation(args)
-//     .userSays('LaunchReqest')
+//     .userSays('LaunchRequest')
 //     .userSays('AddIntent', {ingredient: 'carrots', quantity: '4', unit: 'cups'})
 //     .userSays('AddIntent', {ingredient: 'potatoes', quantity: '8', unit: 'ounces'})
 //     .userSays('ReportIntent')
@@ -35,7 +35,7 @@ conversation(args)
 //
 // args.name = '3. Launch/Add/Add/Remove/Report Test';
 // conversation(args)
-//     .userSays('LaunchReqest')
+//     .userSays('LaunchRequest')
 //     .userSays('AddIntent', {ingredient: 'carrots', quantity: '4', unit: 'cups'})
 //     .userSays('AddIntent', {ingredient: 'potatoes', quantity: '8', unit: 'ounces'})
 //     .userSays('RemoveIntent')
