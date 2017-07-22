@@ -1,8 +1,8 @@
-# Food Buddy
+# Food Buddy <img src="food-buddy-badge.jpg" width="250">
 
 Food Buddy is an Alexa Skill that tracks the nutritional content of your meals from its ingredients as you cook!
-
-<img src="food-buddy-badge.jpg" width="250">
+### Contents:
+- [Getting Started](#Getting Started)
 
 ## Getting Started
 
