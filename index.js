@@ -281,7 +281,7 @@ const mainStateHandler = Alexa.CreateStateHandler(STATES.MAIN, {
     'AMAZON.HelpIntent': function() {
         this.handler.state = STATES.HELP;
         this.emit(':tell', MESSAGES.HELP);
-    }
+    },
     'StartOverIntent': function() {
         this.attributes.meal = {};
         this.attributes.ingredients = {};

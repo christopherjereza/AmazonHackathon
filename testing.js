@@ -34,7 +34,7 @@ conversation(args)
     .userSays('LaunchRequest')
     .userSays('AddIntent', {ingredient: 'carrots', quantity: '4', unit: 'cups'})
     .plainResponse
-    .shouldEqual(' Adding 4 cups of carrots ')
+    .shouldEqual(' Adding 4 cups of carrots with 388 calories. ')
 .end();
 
 args.name = '3. Launch/Add/Add/Report Test';
@@ -44,7 +44,8 @@ conversation(args)
     .userSays('AddIntent', {ingredient: 'potatoes', quantity: '8', unit: 'ounces'})
     .userSays('ReportIntent')
     .plainResponse
-    .shouldEqual(' You have added 4 cups of carrots and 8 ounces of potatoes. ')
+    .shouldEqual(' You have a total of 989 Calories, 171 grams of carbohydrates, 16 grams of protein, ' +
+                 'and 30 grams of fat. ')
 .end();
 
 args.name = '4. Launch/Add/Add/Remove/Report Test';
@@ -57,7 +58,8 @@ conversation(args)
     .userSays('RemoveIntent')
     .userSays('ReportIntent')
     .plainResponse
-    .shouldEqual(' You have added 4 cups of carrots. ')
+    .shouldEqual(' You have a total of 388 Calories, 91 grams of carbohydrates, 9 grams of protein, ' +
+                 'and 2 grams of fat. ')
 .end();
 
 args.name = '5. Launch/Add/Add/Ingredients Test';
@@ -67,5 +69,5 @@ conversation(args)
     .userSays('AddIntent', {ingredient: 'potatoes', quantity: '8', unit: 'ounces'})
     .userSays('IngredientsIntent')
     .plainResponse
-    .shouldEqual(' You have added 4 cups of carrots and 8 ounces of potatoes. ')
+    .shouldEqual(' You have added: 4 cups of carrots with 388 calories and 8 ounces of potatoes with 601 calories. ')
     .end();
