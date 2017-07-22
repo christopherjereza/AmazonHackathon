@@ -1,16 +1,27 @@
-'use strict';
+/**
+ * The main file for the Food Buddy Alexa Skill. Hosted on AWS Lambda.
+ * @authors Christopher Jereza, Michelle Hamilton
+ */
 
+//****************************************** ATTRIBUTES **************************************************************
+
+'use strict';
+/* The Alexa SDK. */
 var Alexa = require('alexa-sdk');
 
+/* String literal used for formatting. */
 const WHITESPACE = ' ';
 
+/* The states of this skill, used for separating ambiguous Yes and No intents. */
 const STATES = {
     'HELP': '_HELPSTATE',
     'MAIN': '_MAINSTATE',
 };
 
+/* The Application ID for this Alexa Skill. */
 const APP_ID = 'amzn1.ask.skill.f7574c4a-fe13-47d7-b1a5-34a199aacf04';
 
+/* Default Alexa speech output messages. */
 const MESSAGES = {
     'WELCOME': 'Welcome to Food Buddy! Add an ingredient or food item to your meal.',
     'STOP': 'Goodbye!',
@@ -26,8 +37,18 @@ const MESSAGES = {
 
 };
 
+/* File containing functions for accessing the USDA Nutrient Data Laboratory API. */
 const DATA = require('./data.js');
 
+//****************************************** FUNCTIONS **************************************************************
+
+/**
+ * Add a specified ingredient to the current meal.
+ * @param {number} quantity - numerical amount of ingredient added
+ * @param {String} unit - unit of measurement (e.g. ounce/ounces, pound/pounds, cup/cups, etc.
+ * @param {String} ingredient - food item to add (e.g. chicken, pasta, rice, tofu, etc.)
+ * @return emit()
+ */
 function add(quantity, unit, ingredient) {
     if (this.attributes.meal === undefined) {
         this.attributes.meal = {};
@@ -41,6 +62,13 @@ function add(quantity, unit, ingredient) {
     DATA.getMacros.call(this, quantity, unit, ingredient, 0);
 }
 
+/**
+ * Update the session attributes with new ingredient
+ * @param {number} quantity - numerical amount of ingredient added
+ * @param {String} unit - unit of measurement (e.g. ounce/ounces, pound/pounds, cup/cups, etc.
+ * @param {String} ingredient - food item to add (e.g. chicken, pasta, rice, tofu, etc.)
+ * @param {object} macros - dictionary object with Calories, Protein, Carbs, and Fat attributes.
+ */
 function update(quantity, unit, ingredient, macros) {
     this.attributes.meal[ingredient] = macros;
     this.attributes.ingredients[ingredient] = [quantity, unit, macros.Calories];
@@ -48,16 +76,26 @@ function update(quantity, unit, ingredient, macros) {
     this.emit(':ask', 'Adding ' + stringify.call(this, quantity, unit, ingredient, macros.Calories) + '.');
 }
 
-/* Return a string with the quantity, unit, and ingredient of the added item. */
+/**
+ * Return a string with the quantity, unit, and ingredient of the added item.
+ * @param {number} quantity - numerical amount of ingredient added
+ * @param {String} unit - unit of measurement (e.g. ounce/ounces, pound/pounds, cup/cups, etc.
+ * @param {String} ingredient - food item to add (e.g. chicken, pasta, rice, tofu, etc.)
+ * @param {number} calories - number of calories contained in the quantity of added ingredient.
+ * @return {String}
+ */
 function stringify(quantity, unit, ingredient, calories) {
     return quantity + WHITESPACE + unit + ' of ' + ingredient + ' with ' + calories + ' calories';
 }
 
-/* List every ingredient added so far. */
+/**
+ * List every ingredient added so far.
+ * @return emit()
+ */
 function report() {
     const meal = this.attributes.meal;
     if (meal.length <= 0) {
-        return 'No food items have been added.';
+        this.emit(':ask', 'No food items have been added.');
     }
     let totalCalories = 0;
     let totalCarbs = 0;
@@ -78,6 +116,10 @@ function report() {
     this.emit(':ask', outputSpeech);
 }
 
+/**
+ * Remove the ingredient that was most recently added.
+ * @return emit()
+ */
 function remove() {
     let meal = this.attributes.meal;
     let ingredients = this.attributes.ingredients;
@@ -91,6 +133,10 @@ function remove() {
     this.emit(':ask', outputSpeech);
 }
 
+/**
+ * Report a list of all ingredients added so far, along with the Calorie count for each item.
+ * @return emit()
+ */
 function ingredients() {
     let meal = this.attributes.ingredients;
     if (meal.length === 0) {
@@ -133,6 +179,13 @@ function ingredients() {
     this.emit(':ask', outputSpeech);
 }
 
+/**
+ * Tell the user the Calories and macro-nutrient counts for INGREDIENT, without adding it to the meal.
+ * @param {number} quantity - numerical amount of ingredient added
+ * @param {String} unit - unit of measurement (e.g. ounce/ounces, pound/pounds, cup/cups, etc.
+ * @param {String} ingredient - food item to add (e.g. chicken, pasta, rice, tofu, etc.)
+ * @return call to DATA.getMacros()
+ */
 function whatIf(quantity, unit, ingredient) {
     if (this.attributes.meal === undefined) {
         this.attributes.meal = {};
@@ -143,12 +196,23 @@ function whatIf(quantity, unit, ingredient) {
     DATA.getMacros.call(this, quantity, unit, ingredient, 1);
 }
 
+/**
+ * Helper function for WhatIfIntent.
+ * @param {number} quantity - numerical amount of ingredient added
+ * @param {String} unit - unit of measurement (e.g. ounce/ounces, pound/pounds, cup/cups, etc.
+ * @param {String} ingredient - food item to add (e.g. chicken, pasta, rice, tofu, etc.)
+ * @param {Object} macros - dictionary object with Calories, Protein, Carbs, and Fat attributes.
+ * @return emit()
+ */
 function whatIfHelper(quantity, unit, ingredient, macros) {
     this.emit(':ask', 'Adding ' + quantity + WHITESPACE + unit + ' of ' + ingredient + ' would add ' + macros.Calories +
         ' calories, ' + macros.Carbs + ' grams of carbohydrates, ' + macros.Protein + ' grams of protein, and ' +
         macros.Fat + ' grams of fat to your meal.');
 }
 
+//****************************************** HANDLERS *************************************************************
+
+/* The initial handler for a new session. */
 var handlers = {
     'LaunchRequest': function () {
         this.handler.state = STATES.MAIN;
@@ -182,6 +246,7 @@ var handlers = {
     },
 };
 
+/* The Main State handler for the Skill during the conversation. */
 const mainStateHandler = Alexa.CreateStateHandler(STATES.MAIN, {
     'LaunchRequest': function () {
         this.emit(':ask', MESSAGES.WELCOME);
@@ -225,6 +290,7 @@ const mainStateHandler = Alexa.CreateStateHandler(STATES.MAIN, {
     }
 });
 
+/* Handler for the Help State of the conversation. Used to separate Yes and No intents. */
 const helpStateHandler = Alexa.CreateStateHandler(STATES.HELP, {
     'AMAZON.YesIntent': function() {
         this.handler.state = STATES.MAIN;
@@ -247,6 +313,7 @@ const helpStateHandler = Alexa.CreateStateHandler(STATES.HELP, {
     }
 });
 
+//****************************************** EXPORTS *************************************************************
 exports.update = update;
 exports.whatIfHelper = whatIfHelper;
 exports.handler = function(event, context){

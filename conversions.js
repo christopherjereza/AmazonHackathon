@@ -1,11 +1,15 @@
 /**
  * File containing conversions from various units of measurement to grams.
- * @author Unity
+ * @authors Christopher Jereza
  */
 
+//****************************************** FUNCTIONS **************************************************************
+
 /**
- * Convert a quantity and unit to grams
- * RETURN TYPE: float
+ * Convert a quantity and unit to grams.
+ * @param {number} quantity - numerical amount to convert
+ * @param {String} unit - specified unit of measurement
+ * @return float
  */
 function getGrams(quantity, unit) {
     if (unit === 'ounces' || unit === 'ounce') {
@@ -32,5 +36,7 @@ function getGrams(quantity, unit) {
         return quantity;
     }
 }
+
+//****************************************** EXPORTS *************************************************************
 
 exports.getGrams = getGrams;

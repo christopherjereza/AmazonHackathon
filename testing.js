@@ -1,12 +1,26 @@
-const conversation = require('alexa-conversation');
-const app = require('/Users/cjjereza/AmazonHackathon/index.js');
+/**
+ * The testing file for this Skill, using Mocha and the "alexa-conversation" testing framework.
+ * See README for testing instructions.
+ * @author Christopher Jereza
+ */
 
+//****************************************** ATTRIBUTES **************************************************************
+
+/* The Alexa Skill conversation testing framework. */
+const conversation = require('alexa-conversation');
+
+/* The main file to be tested. Replace with appropriate index file. */
+const app = require('./index.js');
+
+/* Parameters for initializing a test conversation. */
 const args = {
     name: 'Test Conversation',
     app: app,
     appId: 'amzn1.ask.skill.f7574c4a-fe13-47d7-b1a5-34a199aacf04',
     handler: app.handler
 };
+
+//****************************************** TEST CASES *************************************************************
 
 args.name = '1. Trivial Launch Test';
 conversation(args)
