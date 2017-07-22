@@ -1,4 +1,4 @@
-# Food Buddy <img src="food-buddy-badge.jpg" width="250">
+# Food Buddy <img src="food-buddy-badge.jpg" width="100">
 
 Food Buddy is an Alexa Skill that tracks the nutritional content of your meals from its ingredients as you cook!
 ### Contents:
@@ -8,6 +8,7 @@ Food Buddy is an Alexa Skill that tracks the nutritional content of your meals f
 - [Acknowledgments and Development Notes](#acknowledgments)
 
 <a name="started"/>
+
 ## Getting Started
 
 Visit the Alexa Skill Store and search for "Food Buddy" Skill, which has the following App ID:
@@ -17,6 +18,7 @@ amzn1.ask.skill.f7574c4a-fe13-47d7-b1a5-34a199aacf04
 then, you can enable this Skill on your Alexa device!
 
 <a name="use"/>
+
 ## How to Use
 
 ### Launch
@@ -95,6 +97,7 @@ that will allow the Skill to keep track of ingredients, meals, and food items ac
 Amazon Alexa app that would provide additional functionality.
 
 <a name="testing"/>
+
 ## Testing
 
 This skill was tested with three methods:
@@ -122,6 +125,7 @@ Feel free to add more unit tests! Documentation on the "alexa-conversation" fram
 with this [link](https://www.npmjs.com/package/alexa-conversation)
 
 <a name="acknowledgments"/>
+
 ## Acknowledgments and Development Notes
 
 * Developers: Christopher Jereza, Emily Lo, Stephanie Zhang, and Michelle Hamilton
