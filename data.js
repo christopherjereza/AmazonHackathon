@@ -9,10 +9,8 @@ const INDEX = require('./index.js');
 
 let ndl = new NutrientDataLaboratory('Zo7ru5UezyJCdMFmNSwqBnZiQUKysRvoRx9skNOc');
 
-getMacros(2, 'cups', 'cheese');
-
 // Main entry function, returns object with fields of macro nutrition data
-function getMacros(quantity, unit, ingredient){
+function getMacros(quantity, unit, ingredient, option){
   const thisCurrent = this;
   ndl.search({
     q: ingredient,
@@ -49,7 +47,13 @@ function getMacros(quantity, unit, ingredient){
             carbs= getRoughValue.call(thisCurrent, nutrients, 'Carbohydrate, by difference', inGrams);
             protein = getRoughValue.call(thisCurrent, nutrients, 'Protein', inGrams);
           }
-          INDEX.update.call(thisCurrent, macroObject(calories, fat, carbs, protein));
+          if (option === 0) {
+              INDEX.update.call(thisCurrent, quantity, unit, ingredient, macroObject(Math.round(calories), Math.round(fat),
+                  Math.round(carbs), Math.round(protein)));
+          } else {
+              INDEX.whatIfHelper.call(thisCurrent, quantity, unit, ingredient, macroObject(Math.round(calories), Math.round(fat),
+                  Math.round(carbs), Math.round(protein)));
+          }
         }
       });
     }

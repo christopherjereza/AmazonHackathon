@@ -15,9 +15,9 @@ const APP_ID = 'amzn1.ask.skill.f7574c4a-fe13-47d7-b1a5-34a199aacf04';
 const MESSAGES = {
     'WELCOME': 'Welcome to Food Buddy! Add an ingredient or food item to your meal.',
     'STOP': 'Goodbye!',
-    'HELP': 'You can add ingredients to your meal by saying, ADD and the amount of your ingredient. ' +
-    'Say “what if I add..” followed by your quantity and ingredient to hear how much nutrients and calories you ' +
-    'will be adding. Say “Cancel” or “remove” with an ingredient to remove it from your meal and say “summary” ' +
+    'HELP': 'You can add ingredients to your meal by saying, ADD, and the amount of your ingredient. ' +
+    'Say, “what if I add,” followed by your quantity and ingredient, to hear the nutrients and calories you ' +
+    'will be adding. Say, “Cancel,” or, “remove,” followed by an ingredient to remove it from your meal. Say “summary” ' +
     'at any point to hear the total nutritional information. ' +
     'Would you like to hear an example?',
     'UNHANDLED': 'I\'m sorry, I didn\'t get that. Please specify a quantity, ' +
@@ -36,19 +36,22 @@ function add(quantity, unit, ingredient) {
     if (this.attributes.ingredients === undefined) {
         this.attributes.ingredients = {};
     }
-    DATA.getMacros.call(this, quantity, unit, ingredient);
+    if (this.attributes.addedItems === undefined) {
+        this.attributes.addedItems = [];
+    }
+    DATA.getMacros.call(this, quantity, unit, ingredient, 0);
 }
 
-function update(macros) {
+function update(quantity, unit, ingredient, macros) {
     this.attributes.meal[ingredient] = macros;
-    this.attributes.ingredients[ingredient] = [quantity][unit];
-    this.attributes.lastItemAdded = ingredient;
-    this.emit(':ask', 'Adding ' + stringify.call(this, quantity, unit, ingredient, macros.Calories));
+    this.attributes.ingredients[ingredient] = [quantity, unit, macros.Calories];
+    this.attributes.addedItems.push(ingredient);
+    this.emit(':ask', 'Adding ' + stringify.call(this, quantity, unit, ingredient, macros.Calories) + '.');
 }
 
 /* Return a string with the quantity, unit, and ingredient of the added item. */
 function stringify(quantity, unit, ingredient, calories) {
-    return quantity + WHITESPACE + unit + ' of ' + ingredient + ' with ' + calories + ' calories.';
+    return quantity + WHITESPACE + unit + ' of ' + ingredient + ' with ' + calories + ' calories';
 }
 
 /* List every ingredient added so far. */
@@ -65,10 +68,10 @@ function report() {
     for (let ingredient in meal) {
         if (meal.hasOwnProperty(ingredient) && meal[ingredient] !== undefined) {
             macros = meal[ingredient];
-            totalCalories += macros.Calories;
-            totalCarbs += macros.Carbs;
-            totalProtein += macros.Protein;
-            totalFat += macros.Fat;
+            totalCalories += parseFloat(macros.Calories);
+            totalCarbs += parseFloat(macros.Carbs);
+            totalProtein += parseFloat(macros.Protein);
+            totalFat += parseFloat(macros.Fat);
         }
     }
     let outputSpeech = 'You have a total of ' + totalCalories + ' Calories, ' + totalCarbs + ' grams of carbohydrates, ' +
@@ -78,15 +81,22 @@ function report() {
 
 function remove() {
     let meal = this.attributes.meal;
-    let itemToDelete = this.attributes.lastItemAdded;
+    let ingredients = this.attributes.ingredients;
+    let itemToDelete = this.attributes.addedItems[this.attributes.addedItems.length - 1];
     delete meal[itemToDelete];
+    delete ingredients[itemToDelete];
     this.attributes.meal = meal;
+    this.attributes.ingredients = ingredients;
+    this.attributes.addedItems.pop();
     let outputSpeech = 'Removing ' + itemToDelete;
     this.emit(':ask', outputSpeech);
 }
 
 function ingredients() {
     let meal = this.attributes.ingredients;
+    if (meal.length === 0) {
+        this.emit(':ask', 'You have no ingredients added.');
+    }
     let outputSpeech = 'You have added: ';
     let ingredients = [];
     for (let ingredient in meal) {
@@ -99,11 +109,13 @@ function ingredients() {
         let ingredient;
         let quantity;
         let unit;
+        let calories;
         for (let i = 0; i < len - 1; i += 1) {
             ingredient = ingredients[i];
             quantity = meal[ingredient][0];
             unit = meal[ingredient][1];
-            outputSpeech += stringify.call(this, quantity, unit, ingredient);
+            calories = meal[ingredient][2];
+            outputSpeech += stringify.call(this, quantity, unit, ingredient, calories);
             if (i < len - 2 || len > 2) {
                 outputSpeech += ', ';
             } else {
@@ -116,7 +128,8 @@ function ingredients() {
         ingredient = ingredients[len - 1];
         quantity = meal[ingredient][0];
         unit = meal[ingredient][1];
-        outputSpeech += stringify.call(this, quantity, unit, ingredient) + '.';
+        calories = meal[ingredient][2];
+        outputSpeech += stringify.call(this, quantity, unit, ingredient, calories) + '.';
     }
     this.emit(':ask', outputSpeech);
 }
@@ -128,12 +141,13 @@ function whatIf(quantity, unit, ingredient) {
     if (this.attributes.ingredients === undefined) {
         this.attributes.ingredients = {};
     }
-    const macros = DATA.getMacros(quantity, unit, ingredient);
+    DATA.getMacros.call(this, quantity, unit, ingredient, 1);
+}
 
+function whatIfHelper(quantity, unit, ingredient, macros) {
     this.emit(':ask', 'Adding ' + quantity + WHITESPACE + unit + ' of ' + ingredient + ' would add ' + macros.Calories +
         ' calories, ' + macros.Carbs + ' grams of carbohydrates, ' + macros.Protein + ' grams of protein, and ' +
-        macros.Fat + ' grams of fat to your meal. Would you like to add this?');
-
+        macros.Fat + ' grams of fat to your meal.');
 }
 
 var handlers = {
@@ -221,7 +235,7 @@ const helpStateHandler = Alexa.CreateStateHandler(STATES.HELP, {
     },
     'AMAZON.HelpIntent': function() {
         this.handler.state = STATES.HELP;
-        this.emit(':tell', MESSAGES.HELP);
+        this.emit(':ask', MESSAGES.HELP);
     },
     'Unhandled': function() {
         this.emit(':ask', MESSSAGES.HELP_UNHANDLED);
@@ -229,6 +243,7 @@ const helpStateHandler = Alexa.CreateStateHandler(STATES.HELP, {
 });
 
 exports.update = update;
+exports.whatIfHelper = whatIfHelper;
 exports.handler = function(event, context){
     const alexa = Alexa.handler(event, context);
     alexa.appId = APP_ID;
