@@ -2,8 +2,12 @@
 
 Food Buddy is an Alexa Skill that tracks the nutritional content of your meals from its ingredients as you cook!
 ### Contents:
-- [Getting Started](#Getting Started)
+- [Getting Started](#started)
+- [How to Use](#use)
+- [Testing](#testing)
+- [Acknowledgments and Development Notes](#acknowledgments)
 
+<a name="started"/>
 ## Getting Started
 
 Visit the Alexa Skill Store and search for "Food Buddy" Skill, which has the following App ID:
@@ -12,7 +16,8 @@ amzn1.ask.skill.f7574c4a-fe13-47d7-b1a5-34a199aacf04
 ```
 then, you can enable this Skill on your Alexa device!
 
-## How to use
+<a name="use"/>
+## How to Use
 
 ### Launch
 Start the Food Buddy Skill by saying,
@@ -89,7 +94,7 @@ that will allow the Skill to keep track of ingredients, meals, and food items ac
 - This skill was not intended for use with an Echo Show. I plan to add a visual component (for both Echo Show and the mobile
 Amazon Alexa app that would provide additional functionality.
 
-
+<a name="testing"/>
 ## Testing
 
 This skill was tested with three methods:
@@ -116,14 +121,15 @@ mocha testing.js
 Feel free to add more unit tests! Documentation on the "alexa-conversation" framework can be found
 with this [link](https://www.npmjs.com/package/alexa-conversation)
 
-## Built With
-
-* [AWS Lambda](https://aws.amazon.com/lambda/)
-* [Alexa Developer Portal](https://developer.amazon.com/)
-* [USDA Nutrient Data Laboratory API](https://www.npmjs.com/package/nutrient-data-laboratory)
-
-## Acknowledgments and Development notes
+<a name="acknowledgments"/>
+## Acknowledgments and Development Notes
 
 * Developers: Christopher Jereza, Emily Lo, Stephanie Zhang, and Michelle Hamilton
 * UX and Logo Design: Scott Yu-Jan
 * Brainstormed, designed, developed, and deployed on July 21, 2017 at the 10-hour "Amazon Global Intern Hackathon"
+
+### Built With
+
+* [AWS Lambda](https://aws.amazon.com/lambda/)
+* [Alexa Developer Portal](https://developer.amazon.com/)
+* [USDA Nutrient Data Laboratory API](https://www.npmjs.com/package/nutrient-data-laboratory)
