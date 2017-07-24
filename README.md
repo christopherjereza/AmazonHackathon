@@ -126,11 +126,13 @@ Feel free to add more unit tests! Documentation on the "alexa-conversation" fram
 with this [link](https://www.npmjs.com/package/alexa-conversation)
 
 <a name="demo"/>
+
 ## Demo
 
 https://www.youtube.com/watch?v=REKBjWrvN7A
 
 <a name="acknowledgments"/>
+
 ## Acknowledgments and Development Notes
 
 * Developers: Christopher Jereza, Emily Lo, Stephanie Zhang, and Michelle Hamilton
