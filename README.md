@@ -6,6 +6,7 @@ Food Buddy is an Alexa Skill that tracks the nutritional content of your meals f
 - [How to Use](#use)
 - [Testing](#testing)
 - [Acknowledgments and Development Notes](#acknowledgments)
+- [Demo](#demo)
 
 <a name="started"/>
 
@@ -123,6 +124,12 @@ mocha testing.js
 ```
 Feel free to add more unit tests! Documentation on the "alexa-conversation" framework can be found
 with this [link](https://www.npmjs.com/package/alexa-conversation)
+
+<a name="demo"/>
+
+## Demo
+
+https://www.youtube.com/watch?v=REKBjWrvN7A
 
 <a name="acknowledgments"/>
 
