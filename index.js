@@ -123,7 +123,7 @@ function report() {
             }
         }
         let outputSpeech = 'You have a total of ' + totalCalories + ' Calories, ' + totalCarbs + ' grams of carbohydrates, ' +
-                            totalProtein + ' grams of protein, and ' + totalFat + ' grams of fat.';
+            totalProtein + ' grams of protein, and ' + totalFat + ' grams of fat.';
         this.emit(':ask', outputSpeech, MESSAGES.REPROMPT);
     }
 }
@@ -205,74 +205,74 @@ function ingredients() {
     }
 }
 
-  /**
-   * Tell the user the Calories and macro-nutrient counts for INGREDIENT, without adding it to the meal.
-   * @param {number} quantity - numerical amount of ingredient added
-   * @param {String} unit - unit of measurement (e.g. ounce/ounces, pound/pounds, cup/cups, etc.
-   * @param {String} ingredient - food item to add (e.g. chicken, pasta, rice, tofu, etc.)
-   * @return call to DATA.getMacros()
-   */
-  function whatIf(quantity, unit, ingredient) {
-      if (this.attributes.meal === undefined) {
-          this.attributes.meal = {};
-      }
-      if (this.attributes.ingredients === undefined) {
-          this.attributes.ingredients = {};
-      }
-      DATA.getMacros.call(this, quantity, unit, ingredient, 1);
-  }
+/**
+ * Tell the user the Calories and macro-nutrient counts for INGREDIENT, without adding it to the meal.
+ * @param {number} quantity - numerical amount of ingredient added
+ * @param {String} unit - unit of measurement (e.g. ounce/ounces, pound/pounds, cup/cups, etc.
+ * @param {String} ingredient - food item to add (e.g. chicken, pasta, rice, tofu, etc.)
+ * @return call to DATA.getMacros()
+ */
+function whatIf(quantity, unit, ingredient) {
+    if (this.attributes.meal === undefined) {
+        this.attributes.meal = {};
+    }
+    if (this.attributes.ingredients === undefined) {
+        this.attributes.ingredients = {};
+    }
+    DATA.getMacros.call(this, quantity, unit, ingredient, 1);
+}
 
-  /**
-   * Helper function for WhatIfIntent.
-   * @param {number} quantity - numerical amount of ingredient added
-   * @param {String} unit - unit of measurement (e.g. ounce/ounces, pound/pounds, cup/cups, etc.
-   * @param {String} ingredient - food item to add (e.g. chicken, pasta, rice, tofu, etc.)
-   * @param {Object} macros - dictionary object with Calories, Protein, Carbs, and Fat attributes.
-   * @return emit()
-   */
-  function whatIfHelper(quantity, unit, ingredient, macros) {
-      this.emit(':ask', 'Adding ' + quantity + WHITESPACE + unit + ' of ' + ingredient + ' would add ' + macros.Calories +
-          ' calories, ' + macros.Carbs + ' grams of carbohydrates, ' + macros.Protein + ' grams of protein, and ' +
-          macros.Fat + ' grams of fat to your meal.', MESSAGES.REPROMPT);
-  }
+/**
+ * Helper function for WhatIfIntent.
+ * @param {number} quantity - numerical amount of ingredient added
+ * @param {String} unit - unit of measurement (e.g. ounce/ounces, pound/pounds, cup/cups, etc.
+ * @param {String} ingredient - food item to add (e.g. chicken, pasta, rice, tofu, etc.)
+ * @param {Object} macros - dictionary object with Calories, Protein, Carbs, and Fat attributes.
+ * @return emit()
+ */
+function whatIfHelper(quantity, unit, ingredient, macros) {
+    this.emit(':ask', 'Adding ' + quantity + WHITESPACE + unit + ' of ' + ingredient + ' would add ' + macros.Calories +
+        ' calories, ' + macros.Carbs + ' grams of carbohydrates, ' + macros.Protein + ' grams of protein, and ' +
+        macros.Fat + ' grams of fat to your meal.', MESSAGES.REPROMPT);
+}
 
-  //****************************************** HANDLERS *************************************************************
+//****************************************** HANDLERS *************************************************************
 
-  /* The initial handler for a new session. */
-  var handlers = {
-      'LaunchRequest': function () {
-          this.handler.state = STATES.MAIN;
-          this.emitWithState('LaunchRequest');
-      },
-      'AddIntent': function () {
-          this.handler.state = STATES.MAIN;
-          this.emitWithState('AddIntent');
-      },
-      'WhatIfIntent': function() {
-          this.handler.state = STATES.MAIN;
-          this.emitWithState('WhatIfIntent');
-      },
-      'ReportIntent': function() {
-          this.handler.state = STATES.MAIN;
-          this.emitWithState('ReportIntent');
-      },
-      'RemoveIntent': function() {
-          this.handler.state = STATES.MAIN;
-          this.emitWithState('RemoveIntent');
-      },
-      'IngredientsIntent': function() {
-          this.handler.state = STATES.MAIN;
-          this.emitWithState('IngredientsIntent');
-      },
-      'Unhandled': function() {
-          this.emit(':tell', MESSAGES.START_UNHANDLED);
-      },
-      'AMAZON.StopIntent': function() {
-          this.emit(':tell', MESSAGES.STOP);
-      },
-      'AMAZON.CancelIntent': function() {
-          this.emit('AMAZON.StopIntent');
-      }
+/* The initial handler for a new session. */
+var handlers = {
+    'LaunchRequest': function () {
+        this.handler.state = STATES.MAIN;
+        this.emitWithState('LaunchRequest');
+    },
+    'AddIntent': function () {
+        this.handler.state = STATES.MAIN;
+        this.emitWithState('AddIntent');
+    },
+    'WhatIfIntent': function() {
+        this.handler.state = STATES.MAIN;
+        this.emitWithState('WhatIfIntent');
+    },
+    'ReportIntent': function() {
+        this.handler.state = STATES.MAIN;
+        this.emitWithState('ReportIntent');
+    },
+    'RemoveIntent': function() {
+        this.handler.state = STATES.MAIN;
+        this.emitWithState('RemoveIntent');
+    },
+    'IngredientsIntent': function() {
+        this.handler.state = STATES.MAIN;
+        this.emitWithState('IngredientsIntent');
+    },
+    'Unhandled': function() {
+        this.emit(':tell', MESSAGES.START_UNHANDLED);
+    },
+    'AMAZON.StopIntent': function() {
+        this.emit(':tell', MESSAGES.STOP);
+    },
+    'AMAZON.CancelIntent': function() {
+        this.emit('AMAZON.StopIntent');
+    }
 };
 
 /* The Main State handler for the Skill during the conversation. */
