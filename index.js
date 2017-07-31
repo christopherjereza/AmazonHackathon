@@ -31,8 +31,9 @@ const MESSAGES = {
     'at any point to hear the total nutritional information. ' +
     'Would you like to hear an example?',
     'UNHANDLED': 'I\'m sorry, I didn\'t get that. Please specify a quantity, ' +
-    'a unit of measurement, and an ingredient. Or, say REPORT.',
+    'a unit of measurement, and an ingredient. Or, say \'Summary.\'',
     'START_UNHANDLED': 'Say, \'Open Food Buddy\', to track the nutritional value of your meal.',
+    'REPROMPT': 'You can add another item, or ask for your summary.',
     'HELP_UNHANDLED': 'Sorry, I didn\'t get that. Would you like to hear an example? Please say yes or no.'
 
 };
@@ -70,10 +71,20 @@ function add(quantity, unit, ingredient) {
  * @param {object} macros - dictionary object with Calories, Protein, Carbs, and Fat attributes.
  */
 function update(quantity, unit, ingredient, macros) {
+    if (this.attributes.meal === undefined) {
+        this.attributes.meal = {};
+    }
+    if (this.attributes.ingredients === undefined) {
+        this.attributes.ingredients = {};
+    }
+    if (this.attributes.addedItems === undefined) {
+        this.attributes.addedItems = [];
+    }
     this.attributes.meal[ingredient] = macros;
     this.attributes.ingredients[ingredient] = [quantity, unit, macros.Calories];
     this.attributes.addedItems.push(ingredient);
-    this.emit(':ask', 'Adding ' + stringify.call(this, quantity, unit, ingredient, macros.Calories) + '.');
+    console.log(ingredient + macros.Calories);
+    this.emit(':ask', 'Adding ' + stringify.call(this, quantity, unit, ingredient, macros.Calories) + '.', MESSAGES.REPROMPT);
 }
 
 /**
@@ -94,26 +105,27 @@ function stringify(quantity, unit, ingredient, calories) {
  */
 function report() {
     const meal = this.attributes.meal;
-    if (meal.length <= 0) {
+    if (meal === null || meal === undefined || meal.length <= 0) {
         this.emit(':ask', 'No food items have been added.');
-    }
-    let totalCalories = 0;
-    let totalCarbs = 0;
-    let totalProtein = 0;
-    let totalFat = 0;
-    let macros;
-    for (let ingredient in meal) {
-        if (meal.hasOwnProperty(ingredient) && meal[ingredient] !== undefined) {
-            macros = meal[ingredient];
-            totalCalories += parseFloat(macros.Calories);
-            totalCarbs += parseFloat(macros.Carbs);
-            totalProtein += parseFloat(macros.Protein);
-            totalFat += parseFloat(macros.Fat);
+    } else {
+        let totalCalories = 0;
+        let totalCarbs = 0;
+        let totalProtein = 0;
+        let totalFat = 0;
+        let macros;
+        for (let ingredient in meal) {
+            if (meal.hasOwnProperty(ingredient) && meal[ingredient] !== undefined) {
+                macros = meal[ingredient];
+                totalCalories += parseFloat(macros.Calories);
+                totalCarbs += parseFloat(macros.Carbs);
+                totalProtein += parseFloat(macros.Protein);
+                totalFat += parseFloat(macros.Fat);
+            }
         }
+        let outputSpeech = 'You have a total of ' + totalCalories + ' Calories, ' + totalCarbs + ' grams of carbohydrates, ' +
+                            totalProtein + ' grams of protein, and ' + totalFat + ' grams of fat.';
+        this.emit(':ask', outputSpeech, MESSAGES.REPROMPT);
     }
-    let outputSpeech = 'You have a total of ' + totalCalories + ' Calories, ' + totalCarbs + ' grams of carbohydrates, ' +
-                        totalProtein + ' grams of protein, and ' + totalFat + ' grams of fat.';
-    this.emit(':ask', outputSpeech);
 }
 
 /**
@@ -123,14 +135,23 @@ function report() {
 function remove() {
     let meal = this.attributes.meal;
     let ingredients = this.attributes.ingredients;
-    let itemToDelete = this.attributes.addedItems[this.attributes.addedItems.length - 1];
-    delete meal[itemToDelete];
-    delete ingredients[itemToDelete];
-    this.attributes.meal = meal;
-    this.attributes.ingredients = ingredients;
-    this.attributes.addedItems.pop();
-    let outputSpeech = 'Removing ' + itemToDelete;
-    this.emit(':ask', outputSpeech);
+    let addedItems = this.attributes.addedItems;
+    if (meal === undefined || meal === null || meal.length === 0) {
+        this.emit(':ask', 'You have no ingredients left to remove.', MESSAGES.REPROMPT);
+    } else if (ingredients === undefined || ingredients === null || ingredients.length === 0) {
+        this.emit(':ask', 'You have no ingredients left to remove.', MESSAGES.REPROMPT);
+    } else if (addedItems === undefined || addedItems === null || addedItems.length === 0) {
+        this.emit(':ask', 'You have no ingredients left to remove.', MESSAGES.REPROMPT);
+    } else {
+        let itemToDelete = addedItems[addedItems.length - 1];
+        delete meal[itemToDelete];
+        delete ingredients[itemToDelete];
+        this.attributes.meal = meal;
+        this.attributes.ingredients = ingredients;
+        this.attributes.addedItems.pop();
+        let outputSpeech = 'Removing ' + itemToDelete;
+        this.emit(':ask', outputSpeech, MESSAGES.REPROMPT);
+    }
 }
 
 /**
@@ -139,111 +160,119 @@ function remove() {
  */
 function ingredients() {
     let meal = this.attributes.ingredients;
-    if (meal.length === 0) {
-        this.emit(':ask', 'You have no ingredients added.');
-    }
-    let outputSpeech = 'You have added: ';
-    let ingredients = [];
-    for (let ingredient in meal) {
-        if (meal.hasOwnProperty(ingredient) && meal[ingredient] !== undefined) {
-            ingredients.push(ingredient);
+    if (meal === undefined || meal === null || meal.length === 0) {
+        this.emit(':ask', 'You have no ingredients left to remove.', MESSAGES.REPROMPT);
+    } else if (this.attributes.addedItems === undefined
+        || this.attributes.addedItems === null
+        || this.attributes.addedItems.length === 0) {
+        this.emit(':ask', 'You have no ingredients left to remove.', MESSAGES.REPROMPT);
+    } else {
+        let outputSpeech = 'You have added: ';
+        let ingredients = [];
+        for (let ingredient in meal) {
+            if (meal.hasOwnProperty(ingredient) && meal[ingredient] !== undefined) {
+                ingredients.push(ingredient);
+            }
         }
-    }
-    const len = ingredients.length;
-    if (len > 0) {
-        let ingredient;
-        let quantity;
-        let unit;
-        let calories;
-        for (let i = 0; i < len - 1; i += 1) {
-            ingredient = ingredients[i];
+        const len = ingredients.length;
+        if (len > 0) {
+            let ingredient;
+            let quantity;
+            let unit;
+            let calories;
+            for (let i = 0; i < len - 1; i += 1) {
+                ingredient = ingredients[i];
+                quantity = meal[ingredient][0];
+                unit = meal[ingredient][1];
+                calories = meal[ingredient][2];
+                outputSpeech += stringify.call(this, quantity, unit, ingredient, calories);
+                if (i < len - 2 || len > 2) {
+                    outputSpeech += ', ';
+                } else {
+                    outputSpeech += WHITESPACE;
+                }
+            }
+            if (len > 1) {
+                outputSpeech += 'and ';
+            }
+            ingredient = ingredients[len - 1];
             quantity = meal[ingredient][0];
             unit = meal[ingredient][1];
             calories = meal[ingredient][2];
-            outputSpeech += stringify.call(this, quantity, unit, ingredient, calories);
-            if (i < len - 2 || len > 2) {
-                outputSpeech += ', ';
-            } else {
-                outputSpeech += WHITESPACE;
-            }
+            outputSpeech += stringify.call(this, quantity, unit, ingredient, calories) + '.';
         }
-        if (len > 1) {
-            outputSpeech += 'and ';
-        }
-        ingredient = ingredients[len - 1];
-        quantity = meal[ingredient][0];
-        unit = meal[ingredient][1];
-        calories = meal[ingredient][2];
-        outputSpeech += stringify.call(this, quantity, unit, ingredient, calories) + '.';
+        this.emit(':ask', outputSpeech, MESSAGES.REPROMPT);
     }
-    this.emit(':ask', outputSpeech);
 }
 
-/**
- * Tell the user the Calories and macro-nutrient counts for INGREDIENT, without adding it to the meal.
- * @param {number} quantity - numerical amount of ingredient added
- * @param {String} unit - unit of measurement (e.g. ounce/ounces, pound/pounds, cup/cups, etc.
- * @param {String} ingredient - food item to add (e.g. chicken, pasta, rice, tofu, etc.)
- * @return call to DATA.getMacros()
- */
-function whatIf(quantity, unit, ingredient) {
-    if (this.attributes.meal === undefined) {
-        this.attributes.meal = {};
-    }
-    if (this.attributes.ingredients === undefined) {
-        this.attributes.ingredients = {};
-    }
-    DATA.getMacros.call(this, quantity, unit, ingredient, 1);
-}
+  /**
+   * Tell the user the Calories and macro-nutrient counts for INGREDIENT, without adding it to the meal.
+   * @param {number} quantity - numerical amount of ingredient added
+   * @param {String} unit - unit of measurement (e.g. ounce/ounces, pound/pounds, cup/cups, etc.
+   * @param {String} ingredient - food item to add (e.g. chicken, pasta, rice, tofu, etc.)
+   * @return call to DATA.getMacros()
+   */
+  function whatIf(quantity, unit, ingredient) {
+      if (this.attributes.meal === undefined) {
+          this.attributes.meal = {};
+      }
+      if (this.attributes.ingredients === undefined) {
+          this.attributes.ingredients = {};
+      }
+      DATA.getMacros.call(this, quantity, unit, ingredient, 1);
+  }
 
-/**
- * Helper function for WhatIfIntent.
- * @param {number} quantity - numerical amount of ingredient added
- * @param {String} unit - unit of measurement (e.g. ounce/ounces, pound/pounds, cup/cups, etc.
- * @param {String} ingredient - food item to add (e.g. chicken, pasta, rice, tofu, etc.)
- * @param {Object} macros - dictionary object with Calories, Protein, Carbs, and Fat attributes.
- * @return emit()
- */
-function whatIfHelper(quantity, unit, ingredient, macros) {
-    this.emit(':ask', 'Adding ' + quantity + WHITESPACE + unit + ' of ' + ingredient + ' would add ' + macros.Calories +
-        ' calories, ' + macros.Carbs + ' grams of carbohydrates, ' + macros.Protein + ' grams of protein, and ' +
-        macros.Fat + ' grams of fat to your meal.');
-}
+  /**
+   * Helper function for WhatIfIntent.
+   * @param {number} quantity - numerical amount of ingredient added
+   * @param {String} unit - unit of measurement (e.g. ounce/ounces, pound/pounds, cup/cups, etc.
+   * @param {String} ingredient - food item to add (e.g. chicken, pasta, rice, tofu, etc.)
+   * @param {Object} macros - dictionary object with Calories, Protein, Carbs, and Fat attributes.
+   * @return emit()
+   */
+  function whatIfHelper(quantity, unit, ingredient, macros) {
+      this.emit(':ask', 'Adding ' + quantity + WHITESPACE + unit + ' of ' + ingredient + ' would add ' + macros.Calories +
+          ' calories, ' + macros.Carbs + ' grams of carbohydrates, ' + macros.Protein + ' grams of protein, and ' +
+          macros.Fat + ' grams of fat to your meal.', MESSAGES.REPROMPT);
+  }
 
-//****************************************** HANDLERS *************************************************************
+  //****************************************** HANDLERS *************************************************************
 
-/* The initial handler for a new session. */
-var handlers = {
-    'LaunchRequest': function () {
-        this.handler.state = STATES.MAIN;
-        this.emitWithState('LaunchRequest');
-    },
-    'AddIntent': function () {
-        this.handler.state = STATES.MAIN;
-        this.emitWithState('AddIntent');
-    },
-    'WhatIfIntent': function() {
-        this.handler.state = STATES.MAIN;
-        this.emitWithState('WhatIfIntent');
-    },
-    'ReportIntent': function() {
-        this.handler.state = STATES.MAIN;
-        this.emitWithState('ReportIntent');
-    },
-    'RemoveIntent': function() {
-        this.handler.state = STATES.MAIN;
-        this.emitWithState('RemoveIntent');
-    },
-    'IngredientsIntent': function() {
-        this.handler.state = STATES.MAIN;
-        this.emitWithState('IngredientsIntent');
-    },
-    'Unhandled': function() {
-        this.emit(':tell', MESSAGES.START_UNHANDLED);
-    },
-    'AMAZON.StopIntent': function() {
-        this.emit(':tell', MESSAGES.STOP);
-    },
+  /* The initial handler for a new session. */
+  var handlers = {
+      'LaunchRequest': function () {
+          this.handler.state = STATES.MAIN;
+          this.emitWithState('LaunchRequest');
+      },
+      'AddIntent': function () {
+          this.handler.state = STATES.MAIN;
+          this.emitWithState('AddIntent');
+      },
+      'WhatIfIntent': function() {
+          this.handler.state = STATES.MAIN;
+          this.emitWithState('WhatIfIntent');
+      },
+      'ReportIntent': function() {
+          this.handler.state = STATES.MAIN;
+          this.emitWithState('ReportIntent');
+      },
+      'RemoveIntent': function() {
+          this.handler.state = STATES.MAIN;
+          this.emitWithState('RemoveIntent');
+      },
+      'IngredientsIntent': function() {
+          this.handler.state = STATES.MAIN;
+          this.emitWithState('IngredientsIntent');
+      },
+      'Unhandled': function() {
+          this.emit(':tell', MESSAGES.START_UNHANDLED);
+      },
+      'AMAZON.StopIntent': function() {
+          this.emit(':tell', MESSAGES.STOP);
+      },
+      'AMAZON.CancelIntent': function() {
+          this.emit('AMAZON.StopIntent');
+      }
 };
 
 /* The Main State handler for the Skill during the conversation. */
@@ -280,13 +309,22 @@ const mainStateHandler = Alexa.CreateStateHandler(STATES.MAIN, {
     },
     'AMAZON.HelpIntent': function() {
         this.handler.state = STATES.HELP;
-        this.emit(':tell', MESSAGES.HELP);
+        this.emit(':ask', MESSAGES.HELP);
+    },
+    'AMAZON.NoIntent': function() {
+        this.emit('ReportIntent');
+    },
+    'AMAZON.YesIntent': function() {
+        this.emit(':ask', 'Please add another ingredient, or say \'Summary\'.');
     },
     'StartOverIntent': function() {
         this.attributes.meal = {};
         this.attributes.ingredients = {};
         this.attributes.addedItems = [];
-        this.emitWithState('LaunchRequest');
+        this.emit('LaunchRequest');
+    },
+    'AMAZON.CancelIntent': function() {
+        this.emit('RemoveIntent');
     }
 });
 
@@ -294,23 +332,54 @@ const mainStateHandler = Alexa.CreateStateHandler(STATES.MAIN, {
 const helpStateHandler = Alexa.CreateStateHandler(STATES.HELP, {
     'AMAZON.YesIntent': function() {
         this.handler.state = STATES.MAIN;
-        this.emit(':ask', 'For example, you could say: Add three ounces of chicken, or you could ask: How many calories ' +
-            'would five grams of cheese add?');
+        this.emitWithState(':ask', 'For example, you could say: Add three ounces of chicken, or you could ask: How many calories ' +
+            'would five grams of cheese add?', MESSAGES.REPROMPT);
     },
     'AMAZON.NoIntent': function() {
         this.handler.state = STATES.MAIN;
-        this.emit(':ask', MESSAGES.WELCOME);
+        this.emitWithState(':ask', MESSAGES.WELCOME);
+    },
+    'LaunchRequest': function () {
+        this.handler.state = STATES.MAIN;
+        this.emitWithState('LaunchRequest');
+    },
+    'AddIntent': function () {
+        this.handler.state = STATES.MAIN;
+        this.emitWithState('AddIntent');
+    },
+    'WhatIfIntent': function() {
+        this.handler.state = STATES.MAIN;
+        this.emitWithState('WhatIfIntent');
+    },
+    'ReportIntent': function() {
+        this.handler.state = STATES.MAIN;
+        this.emitWithState('ReportIntent');
+    },
+    'RemoveIntent': function() {
+        this.handler.state = STATES.MAIN;
+        this.emitWithState('RemoveIntent');
+    },
+    'IngredientsIntent': function() {
+        this.handler.state = STATES.MAIN;
+        this.emitWithState('IngredientsIntent');
+    },
+    'StartOverIntent': function() {
+        this.handler.state = STATES.MAIN;
+        this.emitWithState('StartOverIntent');
     },
     'AMAZON.StopIntent': function() {
         this.emit(':tell', MESSAGES.STOP);
     },
     'AMAZON.HelpIntent': function() {
-        this.handler.state = STATES.HELP;
         this.emit(':ask', MESSAGES.HELP);
+    },
+    'AMAZON.CancelIntent': function() {
+        this.handler.state = STATES.MAIN;
+        this.emitWithState('AMAZON.YesIntent');
     },
     'Unhandled': function() {
         this.emit(':ask', MESSSAGES.HELP_UNHANDLED);
-    }
+    },
 });
 
 //****************************************** EXPORTS *************************************************************
